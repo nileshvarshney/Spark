@@ -137,3 +137,34 @@ selected_strickers.show()
 |        37412|            89.75|9674|       Sergio Aguero|            153079|1988-06-02 00:00:00|172.72|   163|
 +-------------+-----------------+----+--------------------+------------------+-------------------+------+------+
 '''
+
+#--------------------------------------------------------------------------------------------
+# joining operation is quite costly specially when dataframe(datasets) are big. To improve the
+# performace and resource utilization broadcast can be used to broadcast small set of data to jon
+# and it esure that data is each node is unique
+#--------------------------------------------------------------------------------------------
+from pyspark.sql.functions import broadcast
+
+strickers_selected = player\
+    .select('player_api_id','player_name')\
+    .join(broadcast(player_attr),["player_api_id"])\
+    .sort(player_attr.weighted_score.desc()).limit(10)
+
+strickers_selected.show()
+'''
++-------------+--------------------+-----------------+
+|player_api_id|         player_name|   weighted_score|
++-------------+--------------------+-----------------+
+|        37412|       Sergio Aguero|            89.75|
+|        38817|        Carlos Tevez|           88.625|
+|       150565|Pierre-Emerick Au...|            87.25|
+|        20276|                Hulk|             87.0|
+|        30834|        Arjen Robben|             86.5|
+|        19533|              Neymar|           86.375|
+|        32118|      Lukas Podolski|            86.25|
+|        25759|     Gonzalo Higuain|85.83333333333334|
+|        31921|         Gareth Bale|             85.5|
+|       169193| Alexandre Lacazette|           85.375|
++-------------+--------------------+-----------------+
+'''
+
