@@ -25,7 +25,7 @@ if __name__ == "__main__":
     fileStreamDF = spark.readStream\
         .option("header","true")\
         .schema(schema)\
-        .csv("/Users/nilvarshney/github_nilesh/Spark/StructureStreaming/datasets/droplocation")   
+        .csv("./datasets/droplocation")   
 
     print(" ")
     print("Is the streaming ready?")

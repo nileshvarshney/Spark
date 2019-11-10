@@ -21,7 +21,7 @@ if __name__ == "__main__":
         .option("header","true")\
         .option("maxFilesPerTriiger",2)\
         .schema(schema)\
-        .csv("/Users/nilvarshney/github_nilesh/Spark/StructureStreaming/datasets/droplocation")
+        .csv("./datasets/droplocation")
 
     fileStreamDF.createOrReplaceTempView("LondonCrimeData")
     
