@@ -1,4 +1,4 @@
-from pyspark.sql.types import *
+from pyspark.sql.types import StructType,StructField,StringType
 from pyspark.sql import SparkSession
 
 if __name__ == "__main__":
@@ -9,7 +9,7 @@ if __name__ == "__main__":
     spark.sparkContext.setLogLevel("ERROR")
 
     # declare schema defination
-    schema = StringType(
+    schema = StructType(
         [
             StructField("lsoc_code",StringType(),True),
             StructField("borough",StringType(),True),
@@ -24,8 +24,8 @@ if __name__ == "__main__":
     # read the streaming
     fileStreamDF = spark.readStream\
         .option("header","true")\
-        .option("schema",schema)\
-        .csv("../datasets/droplocation")   
+        .schema(schema)\
+        .csv("/Users/nilvarshney/github_nilesh/Spark/StructureStreaming/datasets/droplocation")   
 
     print(" ")
     print("Is the streaming ready?")
@@ -44,5 +44,13 @@ if __name__ == "__main__":
     ).withColumnRenamed("value","conviction")
 
     # write data
-    query = trimmedDF.writeStream
+    query = trimmedDF\
+        .writeStream\
+        .outputMode("append")\
+        .format("console")\
+        .option("truncate","false")\
+        .option("numRows",30)\
+        .start()\
+        .awaitTermination()
+    
 
