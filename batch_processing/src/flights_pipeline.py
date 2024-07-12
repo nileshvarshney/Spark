@@ -4,7 +4,6 @@ from google.cloud import storage, bigquery
 from google.cloud.bigquery import table
 
 
-
 PROJECT = "<PROJECT_ID>"
 GCS_BUCKET = "<GCS_BUCKET>"
 
@@ -31,7 +30,7 @@ def create_bq_normal_table(bq_project, bq_dataset, bq_table, source_data_loc):
 spark = SparkSession.builder.appName('flightPipeLine').getOrCreate()
 
 airlines = 'gs://{}/data/airlines.csv'.format(GCS_BUCKET)
-flights = 'gs://{}/data/airlines.csv'.format(GCS_BUCKET)
+flights = 'gs://{}/data/flights.csv'.format(GCS_BUCKET)
 airports = 'gs://{}/data/airports.csv'.format(GCS_BUCKET)
 
 airlines_df = spark.read.csv(airlines, header=True)
@@ -47,7 +46,7 @@ print(airports_df.printSchema())
 print(airports_df.show(5))
 
 delayed_flights = (
-    flights.filter(col("departure_delay" > 0))
+    flights_df.filter(flights_df.departure_delay > 0)
     .select("date", "airlines", "flight_number", "origin", "destination")
 )
 
@@ -77,15 +76,14 @@ v_target_bucket = "gs://{}/output/{}/".format(GCS_BUCKET,"flights")
 flights_df.write.mode("overwrite").format("parquet").save(v_target_bucket)
 create_bq_normal_table(PROJECT,"airlines_db","flights", v_target_bucket) 
 
-v_target_bucket = "gs://{}/{}/".format(GCS_BUCKET,"airlines")
+v_target_bucket = "gs://{}/output/".format(GCS_BUCKET,"airlines")
 airlines_df.write.mode("overwrite").format("parquet").save(v_target_bucket)
 create_bq_normal_table(PROJECT,"airlines_db","airlines", v_target_bucket) 
 
-v_target_bucket = "gs://{}/{}/".format(GCS_BUCKET,"delayed_flights")
+v_target_bucket = "gs://{}/output/".format(GCS_BUCKET,"delayed_flights")
 delayed_flights.write.mode("overwrite").format("parquet").save(v_target_bucket)
 create_bq_normal_table(PROJECT,"airlines_db","delayed_flights", v_target_bucket) 
 
-v_target_bucket = "gs://{}/{}/".format(GCS_BUCKET,"airports")
+v_target_bucket = "gs://{}/output/".format(GCS_BUCKET,"airports")
 airports_df.write.mode("overwrite").format("parquet").save(v_target_bucket)
 create_bq_normal_table(PROJECT,"airlines_db","airports", v_target_bucket) 
-
